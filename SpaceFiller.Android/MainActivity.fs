@@ -1,5 +1,4 @@
-﻿// Copyright 2018 Fabulous contributors. See LICENSE.md for license.
-namespace SpaceFiller.Android
+﻿namespace SpaceFiller.Android
 
 open System
 

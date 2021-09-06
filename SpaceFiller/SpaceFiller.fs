@@ -1,5 +1,4 @@
-﻿// Copyright Fabulous contributors. See LICENSE.md for license.
-namespace SpaceFiller
+﻿namespace SpaceFiller
 
 open System.Diagnostics
 open Fabulous
