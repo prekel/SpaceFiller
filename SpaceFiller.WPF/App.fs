@@ -5,17 +5,17 @@ open System
 open Xamarin.Forms
 open Xamarin.Forms.Platform.WPF
 
-type MainWindow() = 
+type MainWindow() =
     inherit FormsApplicationPage()
 
-module Main = 
+module Main =
     [<EntryPoint>]
     [<STAThread>]
-    let main(_args) =
+    let main (_args) =
 
         let app = new System.Windows.Application()
         Forms.Init()
-        let window = MainWindow() 
+        let window = MainWindow()
         window.LoadApplication(new SpaceFiller.App())
 
         app.Run(window)
