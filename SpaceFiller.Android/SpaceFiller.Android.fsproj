@@ -128,6 +128,10 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Ply, Version=0.3.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Ply.0.3.1\lib\netstandard2.0\Ply.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
