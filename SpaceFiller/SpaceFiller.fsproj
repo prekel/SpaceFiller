@@ -8,6 +8,7 @@
     <Content Include="SpaceFiller.sqlite" />
     <Compile Include="Prelude.fs" />
     <Compile Include="ShibePage.fs" />
+    <Compile Include="MapPage.fs" />
     <Compile Include="SpaceFiller.fs" />
   </ItemGroup>
   

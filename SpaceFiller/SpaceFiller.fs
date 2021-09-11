@@ -3,7 +3,6 @@
 open System.Diagnostics
 open Fabulous
 open Fabulous.XamarinForms
-open Fabulous.XamarinForms.Maps
 open Fabulous.XamarinForms.LiveUpdate
 open Xamarin.Forms
 
@@ -12,7 +11,8 @@ module App =
         { Count: int
           Step: int
           TimerOn: bool
-          ShibePageModel: ShibePage.Model }
+          ShibePageModel: ShibePage.Model
+          MapPageModel: MapPage.Model }
 
     type Msg =
         | Increment
@@ -22,14 +22,17 @@ module App =
         | TimerToggled of bool
         | TimedTick
         | ShibePageMsg of ShibePage.Msg
+        | MapPageMsg of MapPage.Msg
 
     let init () =
         let initShibeModel, _ = ShibePage.init ()
+        let initMapModel, _ = MapPage.init ()
 
         { Count = 0
           Step = 1
           TimerOn = false
-          ShibePageModel = initShibeModel },
+          ShibePageModel = initShibeModel
+          MapPageModel = initMapModel },
         Cmd.none
 
     let timerCmd =
@@ -66,6 +69,12 @@ module App =
             { model with
                   ShibePageModel = shibePageModel },
             shibePageCmd |> Cmd.map ShibePageMsg
+        | MapPageMsg msg ->
+            let mapPageModel, mapPageCmd = MapPage.update msg model.MapPageModel
+
+            { model with
+                  MapPageModel = mapPageModel },
+            mapPageCmd |> Cmd.map ShibePageMsg
 
     let view (model: Model) dispatch =
         View.TabbedPage(
@@ -95,7 +104,7 @@ module App =
                         )
                   )
                   ShibePage.view model.ShibePageModel (dispatch << ShibePageMsg)
-                  View.ContentPage(content = View.Map()) ]
+                  MapPage.view model.MapPageModel (dispatch << MapPageMsg) ]
         )
 
     // Note, this declaration is needed if you enable LiveUpdate
