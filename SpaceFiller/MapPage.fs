@@ -17,8 +17,9 @@ let update msg model =
     match msg with
     | ChangeMapType mt -> { model with MapType = mt }, Cmd.none
 
-let rec mapRef = ViewRef<Map>()
-mapRef.Attached.Add(fun map -> map.TrafficEnabled <- true)
+let mapRef =
+    ViewRef<Map>()
+    >!!=> fun map -> map.TrafficEnabled <- true
 
 let view model dispatch =
     View.ContentPage(

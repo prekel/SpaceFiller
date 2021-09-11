@@ -30,14 +30,13 @@ module App =
                     initShibeCmd |> Cmd.map ShibePageMsg
                     initMapCmd |> Cmd.map MapPageMsg ]
 
-    let tabbedPageRef = ViewRef<TabbedPage>()
-
-    tabbedPageRef.Attached.Add
-        (fun tabbedPage ->
-            tabbedPage
-                .On<Android>()
-                .SetToolbarPlacement(ToolbarPlacement.Bottom)
-            |> ignore<IPlatformElementConfiguration<Android, TabbedPage>>)
+    let tabbedPageRef =
+        ViewRef<TabbedPage>()
+        >!!=> fun tabbedPage ->
+                  tabbedPage
+                      .On<Android>()
+                      .SetToolbarPlacement(ToolbarPlacement.Bottom)
+                  |> ignore<IPlatformElementConfiguration<Android, TabbedPage>>
 
     let update msg model =
         match msg with
@@ -75,7 +74,7 @@ module App =
     let program =
         XamarinFormsProgram.mkProgram init update view
 #if DEBUG
-        //|> Program.withConsoleTrace
+//|> Program.withConsoleTrace
 #endif
 
 type App() as app =

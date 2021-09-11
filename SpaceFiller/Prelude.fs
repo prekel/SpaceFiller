@@ -11,6 +11,10 @@ module Fabulous =
     open FSharp.Control.Tasks.NonAffine
     open Fabulous
 
+    let (>!!=>) (a: ViewRef<_>) b =
+        a.Attached.Add b
+        a
+
     module Cmd =
         let ofTaskMsg (p: unit -> Task<'msg>) : Cmd<'msg> =
             [ fun dispatch ->
