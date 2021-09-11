@@ -5,14 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="SpaceFiller.sqlite" />
+    <EmbeddedResource Include="Assets\Font Awesome 5 Free-Solid-900.otf" />
+    <EmbeddedResource Include="SpaceFiller.sqlite" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Prelude.fs" />
+    <Compile Include="Glyphs.fs" />
     <Compile Include="FillerPage.fs" />
     <Compile Include="ShibePage.fs" />
     <Compile Include="MapPage.fs" />
     <Compile Include="SpaceFiller.fs" />
-    <EmbeddedResource Include="Assets\Font Awesome 5 Free-Solid-900.otf" />
   </ItemGroup>
   
   <ItemGroup>
@@ -27,7 +28,4 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
   
-  <ItemGroup>
-    <ProjectReference Include="..\SpaceFiller.Glyphs\SpaceFiller.Glyphs.csproj" />
-  </ItemGroup>
 </Project>
