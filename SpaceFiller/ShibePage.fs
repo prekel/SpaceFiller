@@ -5,6 +5,7 @@ open FSharp.Control.Tasks
 open Fabulous
 open Fabulous.XamarinForms
 open Newtonsoft.Json
+open SpaceFiller.Glyphs
 open Xamarin.Forms
 
 type Msg =
@@ -42,6 +43,8 @@ let update msg model =
 
 let view (model: Model) dispatch =
     View.ContentPage(
+        title = "Shibe",
+        icon = Image.fromFont (FontImageSource(Glyph = FA.Dog, FontFamily = "FA")),
         content =
             View.StackLayout(
                 padding = Thickness 20.0,

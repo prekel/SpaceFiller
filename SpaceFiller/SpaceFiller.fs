@@ -3,6 +3,7 @@
 open System
 open Fabulous
 open Fabulous.XamarinForms
+open Xamarin.Forms.PlatformConfiguration.AndroidSpecific
 open Xamarin.Forms
 
 module App =
@@ -26,6 +27,15 @@ module App =
           MapPageModel = initMapModel },
         Cmd.none
 
+    let tabbedPageRef = ViewRef<TabbedPage>()
+
+    tabbedPageRef.Attached.Add
+        (fun tabbedPage ->
+            tabbedPage
+                .On<Xamarin.Forms.PlatformConfiguration.Android>()
+                .SetToolbarPlacement(ToolbarPlacement.Bottom)
+            |> ignore<IPlatformElementConfiguration<PlatformConfiguration.Android, TabbedPage>>)
+
     let update msg model =
         match msg with
         | FillerPageMsg msg ->
@@ -36,6 +46,7 @@ module App =
                   FillerPageModel = fillerPageModel },
             fillerPageCmd |> Cmd.map ShibePageMsg
         | ShibePageMsg msg ->
+
             let shibePageModel, shibePageCmd =
                 ShibePage.update msg model.ShibePageModel
 
@@ -51,6 +62,7 @@ module App =
 
     let view (model: Model) dispatch =
         View.TabbedPage(
+            ref = tabbedPageRef,
             children =
                 [ FillerPage.view model.FillerPageModel (dispatch << FillerPageMsg)
                   ShibePage.view model.ShibePageModel (dispatch << ShibePageMsg)
@@ -66,7 +78,8 @@ module App =
 type App() as app =
     inherit Application()
 
-    let _ = App.program |> XamarinFormsProgram.run app
+    let _ =
+        App.program |> XamarinFormsProgram.run app
 
     override _.OnSleep() = Console.WriteLine "OnSleep"
 
