@@ -20,7 +20,7 @@ let update msg model =
 let rec mapRef = ViewRef<Map>()
 mapRef.Attached.Add(fun map -> map.TrafficEnabled <- true)
 
-let view (model: Model) dispatch =
+let view model dispatch =
     View.ContentPage(
         title = "Map",
         icon = Image.fromFont (FontImageSource(Glyph = FA.Map, FontFamily = "FA")),
