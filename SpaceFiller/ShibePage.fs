@@ -68,6 +68,8 @@ let view (model: Model) dispatch =
                           command = (fun () -> dispatch Show),
                           horizontalOptions = LayoutOptions.Center
                       )
-                      View.Label(text = (model.ImageUrls |> string), horizontalOptions = LayoutOptions.Center) ]
+                      View.Label(text = (model.ImageUrls |> string), horizontalOptions = LayoutOptions.Center)
+                      for i in model.ImageUrls do
+                          View.Image(source = Image.fromPath i) ]
             )
     )
