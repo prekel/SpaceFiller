@@ -3,6 +3,7 @@
 open System.Diagnostics
 open Fabulous
 open Fabulous.XamarinForms
+open Fabulous.XamarinForms.Maps
 open Fabulous.XamarinForms.LiveUpdate
 open Xamarin.Forms
 
@@ -59,10 +60,12 @@ module App =
             else
                 model, Cmd.none
         | ShibePageMsg msg ->
-            let a, b =
+            let shibePageModel, shibePageCmd =
                 ShibePage.update msg model.ShibePageModel
 
-            { model with ShibePageModel = a }, b |> Cmd.map (fun c -> ShibePageMsg c)
+            { model with
+                  ShibePageModel = shibePageModel },
+            shibePageCmd |> Cmd.map ShibePageMsg
 
     let view (model: Model) dispatch =
         View.TabbedPage(
@@ -91,7 +94,8 @@ module App =
                                   ) ]
                         )
                   )
-                  ShibePage.view model.ShibePageModel (dispatch << ShibePageMsg) ]
+                  ShibePage.view model.ShibePageModel (dispatch << ShibePageMsg)
+                  View.ContentPage(content = View.Map()) ]
         )
 
     // Note, this declaration is needed if you enable LiveUpdate

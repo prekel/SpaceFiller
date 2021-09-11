@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.companyname">
-    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="30" />
-    <application android:label="SpaceFiller.Android"></application>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0"
+          package="com.github.prekel.SpaceFiller">
+    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="30"/>
+    <application android:label="SpaceFiller.Android">
+        <meta-data android:name="com.google.android.maps.v2.API_KEY"
+                   android:value="AIzaSyBx07NcdvH4Wh-5nFdrs624SJUG21JrBg4"/>
+    </application>
 </manifest>
