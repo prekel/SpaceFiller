@@ -26,9 +26,9 @@ module App =
         { FillerPageModel = initFillerModel
           ShibePageModel = initShibeModel
           MapPageModel = initMapModel },
-        Cmd.batch [ initFillerCmd
-                    initShibeCmd
-                    initMapCmd ]
+        Cmd.batch [ initFillerCmd |> Cmd.map FillerPageMsg
+                    initShibeCmd |> Cmd.map ShibePageMsg
+                    initMapCmd |> Cmd.map MapPageMsg ]
 
     let tabbedPageRef = ViewRef<TabbedPage>()
 
@@ -75,7 +75,7 @@ module App =
     let program =
         XamarinFormsProgram.mkProgram init update view
 #if DEBUG
-        |> Program.withConsoleTrace
+        //|> Program.withConsoleTrace
 #endif
 
 type App() as app =

@@ -1,16 +1,16 @@
 ﻿[<AutoOpen>]
 module SpaceFiller.Prelude
 
-open System.Threading.Tasks
-open FSharp.Control.Tasks
-open Fabulous
-
 let inline (^) a b = a b
 
 [<RequiresExplicitTypeArguments>]
 let inline ignore<'T> (a: 'T) = ignore a
 
 module Fabulous =
+    open System.Threading.Tasks
+    open FSharp.Control.Tasks.NonAffine
+    open Fabulous
+
     module Cmd =
         let ofTaskMsg (p: unit -> Task<'msg>) : Cmd<'msg> =
             [ fun dispatch ->

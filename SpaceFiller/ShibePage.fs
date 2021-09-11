@@ -1,7 +1,7 @@
 ﻿module SpaceFiller.ShibePage
 
 open System.Net.Http
-open FSharp.Control.Tasks
+open FSharp.Control.Tasks.NonAffine
 open Fabulous
 open Fabulous.XamarinForms
 open Newtonsoft.Json
@@ -10,12 +10,13 @@ open Xamarin.Forms
 
 type Msg =
     | SetRequested of int
-    | ImageDownloaded of string list
+    | ImageListReceived of string list
     | Show
+    | ImageDownloaded of byte array
 
 type Model =
-    { RequestedImages: int
-      ImageUrls: string list }
+    { RequestedImagesCount: int
+      Images: byte array list }
 
 let downloadUrs count () =
     task {
@@ -29,17 +30,38 @@ let downloadUrs count () =
         let response =
             JsonConvert.DeserializeObject<string array>(content)
 
-        return response |> List.ofArray |> ImageDownloaded
+        return response |> List.ofArray |> ImageListReceived
+    }
+
+let downloadImage (path: string) () =
+    task {
+        use httpClient = new HttpClient()
+        let! a = httpClient.GetAsync(path)
+        let! content = a.Content.ReadAsByteArrayAsync()
+        return ImageDownloaded content
     }
 
 let init () =
-    { RequestedImages = 1; ImageUrls = [] }, Cmd.none
+    { RequestedImagesCount = 1
+      Images = [] },
+    Cmd.ofMsg Show
 
 let update msg model =
     match msg with
-    | SetRequested cnt -> { model with RequestedImages = cnt }, Cmd.none
-    | ImageDownloaded images -> { model with ImageUrls = images }, Cmd.none
-    | Show -> model, Cmd.ofTaskMsg (downloadUrs model.RequestedImages)
+    | SetRequested cnt ->
+        { model with
+              RequestedImagesCount = cnt },
+        Cmd.none
+    | ImageListReceived images ->
+        model,
+        images
+        |> List.map (fun path -> Cmd.ofTaskMsg (downloadImage path))
+        |> Cmd.batch
+    | Show -> { model with Images = [] }, Cmd.ofTaskMsg (downloadUrs model.RequestedImagesCount)
+    | ImageDownloaded image ->
+        { model with
+              Images = image :: model.Images },
+        Cmd.none
 
 let view (model: Model) dispatch =
     View.ContentPage(
@@ -48,31 +70,34 @@ let view (model: Model) dispatch =
         content =
             View.StackLayout(
                 padding = Thickness 20.0,
-                verticalOptions = LayoutOptions.Center,
                 children =
-                    [ View.Label(
-                        text = $"%d{model.RequestedImages}",
-                        horizontalOptions = LayoutOptions.Center,
-                        width = 200.0,
-                        horizontalTextAlignment = TextAlignment.Center
+                    [ View.Slider(
+                        minimumMaximum = (float 1, float 50),
+                        value = float 1,
+                        valueChanged =
+                            (fun value ->
+                                value.NewValue
+                                |> (+) 0.5
+                                |> int
+                                |> SetRequested
+                                |> dispatch)
                       )
                       View.Button(
-                          text = "Increment",
-                          command = (fun () -> dispatch (SetRequested(model.RequestedImages + 1))),
-                          horizontalOptions = LayoutOptions.Center
-                      )
-                      View.Button(
-                          text = "Decrement",
-                          command = (fun () -> dispatch (SetRequested(model.RequestedImages - 1))),
-                          horizontalOptions = LayoutOptions.Center
-                      )
-                      View.Button(
-                          text = "Show",
+                          horizontalOptions = LayoutOptions.Center,
+                          text = $"Show {model.RequestedImagesCount} images",
                           command = (fun () -> dispatch Show),
-                          horizontalOptions = LayoutOptions.Center
+                          commandCanExecute =
+                              (model.RequestedImagesCount
+                               <> (model.Images |> List.length))
                       )
-                      View.Label(text = (model.ImageUrls |> string), horizontalOptions = LayoutOptions.Center)
-                      for i in model.ImageUrls do
-                          View.Image(source = Image.fromPath i) ]
+                      View.ScrollView(
+                          verticalOptions = LayoutOptions.Fill,
+                          content =
+                              View.StackLayout(
+                                  children =
+                                      [ for i in model.Images |> List.rev do
+                                            View.Image(source = Image.fromBytes i) ]
+                              )
+                      ) ]
             )
     )
