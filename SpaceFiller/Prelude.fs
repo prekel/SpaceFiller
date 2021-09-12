@@ -34,6 +34,19 @@ module Fabulous =
                   }
                   |> ignore<Task> ]
 
+        let ofTaskMsgErr (p: unit -> Task<'msg>) (toErr: exn -> 'msg) : Cmd<'msg> =
+            [ fun dispatch ->
+                  unitTask {
+                      let! msg =
+                          try
+                              p ()
+                          with
+                          | ex -> Task.FromResult(toErr ex)
+
+                      dispatch msg
+                  }
+                  |> ignore<Task> ]
+
         let ofTaskMsgOption (p: unit -> Task<'msg option>) : Cmd<'msg> =
             [ fun dispatch ->
                   unitTask {

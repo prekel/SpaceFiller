@@ -74,37 +74,41 @@ type Msg =
     | Reset
     | Load
     | Loaded of FillRecord list
+    | Err of exn
 
-type Model = { Records: FillRecord list }
+type Model =
+    { Records: FillRecord list
+      Err: string option }
 
 let load (ctx: QueryContext) () =
     task {
-        let! ret =
-            try
-                select {
-                    for r in fill_record do
-                        select r
-                }
-                |> ctx.ReadAsync HydraReader.Read
-            with
-            | ex -> undefined
+        let! fr =
+            select {
+                for r in fill_record do
+                    select r
+            }
+            |> ctx.ReadAsync HydraReader.Read
 
         return
-            ret
+            fr
             |> Seq.map FillRecord.FromDb
             |> List.ofSeq
             |> Loaded
     }
 
-let init (ctx: QueryContext) () = { Records = [] }, Cmd.none
+let init (ctx: QueryContext) () = { Records = []; Err = None }, Cmd.none
 
 let update (ctx: QueryContext) msg model =
     match msg with
     | Refresh -> undefined
     | Set _ -> undefined
     | Reset -> undefined
-    | Load -> model, Cmd.ofTaskMsg (load ctx)
+    | Load -> model, Cmd.ofTaskMsgErr (load ctx) Err
     | Loaded records -> { model with Records = records }, Cmd.none
+    | Err ex ->
+        { model with
+              Err = ex |> string |> Some },
+        Cmd.none
 
 let view model dispatch =
     View.ContentPage(
@@ -115,6 +119,8 @@ let view model dispatch =
                 padding = Thickness 20.0,
                 children =
                     [ View.Label(text = (model |> string))
-                      View.Button(text = "More", command = (fun () -> dispatch Load)) ]
+                      View.Button(text = "Refresh", command = (fun () -> dispatch Refresh))
+                      View.Button(text = "More", command = (fun () -> dispatch Load))
+                      View.Button(text = "Reset", command = (fun () -> dispatch Reset)) ]
             )
     )
