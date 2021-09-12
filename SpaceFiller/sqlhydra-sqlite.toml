@@ -1,0 +1,7 @@
+[general]
+connection = "Data Source=./SpaceFiller.sqlite;Version=3;foreign keys=true"
+output = "Db.fs"
+namespace = "SpaceFiller.Db"
+cli_mutable = false
+[readers]
+reader_type = "System.Data.IDataReader"

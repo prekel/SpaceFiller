@@ -1,11 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
+    <Compile Include="Db.fs">
+      <Visible>False</Visible>
+    </Compile>
     <EmbeddedResource Include="Assets\Font Awesome 5 Free-Solid-900.otf" />
+    <Content Include="sqlhydra-sqlite.toml" />
     <EmbeddedResource Include="SpaceFiller.sqlite" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Prelude.fs" />
@@ -15,7 +17,6 @@
     <Compile Include="MapPage.fs" />
     <Compile Include="SpaceFiller.fs" />
   </ItemGroup>
-  
   <ItemGroup>
     <PackageReference Include="Fabulous" Version="1.1.0" />
     <PackageReference Include="Fabulous.LiveUpdate" Version="1.1.0" />
@@ -27,5 +28,7 @@
     <PackageReference Include="Fabulous.XamarinForms.LiveUpdate" Version="1.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
-  
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="dotnet sqlhydra-sqlite" />
+  </Target>
 </Project>

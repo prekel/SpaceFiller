@@ -7,6 +7,12 @@
       "commands": [
         "fabulous"
       ]
+    },
+    "sqlhydra.sqlite": {
+      "version": "0.300.0",
+      "commands": [
+        "sqlhydra-sqlite"
+      ]
     }
   }
 }
