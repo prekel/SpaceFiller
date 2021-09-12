@@ -1,5 +1,6 @@
 ﻿module SpaceFiller.FillerPage
 
+open System
 open FSharp.Control.Tasks.NonAffine
 open Fabulous
 open Fabulous.XamarinForms
@@ -9,40 +10,101 @@ open SpaceFiller.Glyphs
 open SpaceFiller.Db
 open SpaceFiller.Tables
 
+type Request =
+    { Requested: int<mB>
+      Precision: int<mB>
+      Keep: int<mB> }
+
+[<RequireQualifiedAccess>]
+type Operation =
+    | Refresh
+    | Set
+    | Reset
+
+type FillRecord =
+    { Id: int64
+      Operation: Operation
+      Request: Request option
+      Filled: int<mB>
+      Free: int<mB>
+      DateTime: DateTimeOffset option }
+    static member FromDb(dbo: main.fill_record) =
+        { Id = dbo.id
+          Operation =
+              match dbo.operation with
+              | 1 -> Operation.Refresh
+              | 2 -> Operation.Set
+              | 3 -> Operation.Reset
+              | _ -> unreached
+          Request =
+              match dbo.requested, dbo.precision, dbo.keep with
+              | Some requested, Some precision, Some keep ->
+                  { Requested = requested * 1<mB>
+                    Precision = precision * 1<mB>
+                    Keep = keep * 1<mB> }
+                  |> Some
+              | _ -> None
+          Filled = dbo.filled * 1<mB>
+          Free = dbo.free * 1<mB>
+          DateTime = dbo.date_time |> Option.map DateTimeOffset.Parse }
+
+    member this.ToDb() =
+        { main.fill_record.id = this.Id
+          main.fill_record.operation =
+              match this.Operation with
+              | Operation.Refresh -> 1
+              | Operation.Set -> 2
+              | Operation.Reset -> 3
+          main.fill_record.requested =
+              this.Request
+              |> Option.map (fun r -> int r.Requested)
+          main.fill_record.precision =
+              this.Request
+              |> Option.map (fun r -> int r.Precision)
+          main.fill_record.keep = this.Request |> Option.map (fun r -> int r.Keep)
+          main.fill_record.filled = int this.Filled
+          main.fill_record.free = int this.Free
+          main.fill_record.date_time =
+              this.DateTime
+              |> Option.map (fun dt -> dt.ToString("o")) }
+
 type Msg =
-    | Abc of int option list
-    | More
-    | More1
+    | Refresh
+    | Set of Request
+    | Reset
+    | Load
+    | Loaded of FillRecord list
 
-type Model = { Ab: int option list }
+type Model = { Records: FillRecord list }
 
-let get1 (ctx: QueryContext) () =
+let load (ctx: QueryContext) () =
     task {
-        let! a =
-            select {
-                for p in table_name do
-                    select p.column_1
-            }
-            |> ctx.ReadAsync HydraReader.Read
+        let! ret =
+            try
+                select {
+                    for r in fill_record do
+                        select r
+                }
+                |> ctx.ReadAsync HydraReader.Read
+            with
+            | ex -> undefined
 
-        return a |> Seq.toList |> Abc
+        return
+            ret
+            |> Seq.map FillRecord.FromDb
+            |> List.ofSeq
+            |> Loaded
     }
 
-let init (ctx: QueryContext) () = { Ab = [] }, Cmd.ofTaskMsg (get1 ctx)
+let init (ctx: QueryContext) () = { Records = [] }, Cmd.none
 
 let update (ctx: QueryContext) msg model =
     match msg with
-    | Abc a -> { model with Ab = a }, Cmd.none
-    | More -> { model with Ab = [] }, Cmd.ofTaskMsg (get1 ctx)
-    | More1 ->
-        let a =
-            select {
-                for p in table_name do
-                    select p.column_1
-            }
-            |> ctx.Read HydraReader.Read
-
-        { model with Ab = a |> Seq.toList }, Cmd.none
+    | Refresh -> undefined
+    | Set _ -> undefined
+    | Reset -> undefined
+    | Load -> model, Cmd.ofTaskMsg (load ctx)
+    | Loaded records -> { model with Records = records }, Cmd.none
 
 let view model dispatch =
     View.ContentPage(
@@ -52,7 +114,7 @@ let view model dispatch =
             View.StackLayout(
                 padding = Thickness 20.0,
                 children =
-                    [ View.Label(text = (model.Ab |> string))
-                      View.Button(text = "More", command = (fun () -> dispatch More1)) ]
+                    [ View.Label(text = (model |> string))
+                      View.Button(text = "More", command = (fun () -> dispatch Load)) ]
             )
     )

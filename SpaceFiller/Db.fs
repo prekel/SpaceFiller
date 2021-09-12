@@ -36,6 +36,38 @@ module main =
         member __.ReadIfNotNull(column: Column) =
             if column.IsNull() then None else Some(__.Read())
 
+    type fill_record =
+        { id: int64
+          operation: int
+          requested: Option<int>
+          precision: Option<int>
+          keep: Option<int>
+          filled: int
+          free: int
+          date_time: Option<string> }
+
+    type fill_recordReader(reader: System.Data.IDataReader, getOrdinal) =
+        member __.id = RequiredColumn(reader, getOrdinal, reader.GetInt64, "id")
+        member __.operation = RequiredColumn(reader, getOrdinal, reader.GetInt32, "operation")
+        member __.requested = OptionalColumn(reader, getOrdinal, reader.GetInt32, "requested")
+        member __.precision = OptionalColumn(reader, getOrdinal, reader.GetInt32, "precision")
+        member __.keep = OptionalColumn(reader, getOrdinal, reader.GetInt32, "keep")
+        member __.filled = RequiredColumn(reader, getOrdinal, reader.GetInt32, "filled")
+        member __.free = RequiredColumn(reader, getOrdinal, reader.GetInt32, "free")
+        member __.date_time = OptionalColumn(reader, getOrdinal, reader.GetString, "date_time")
+        member __.Read() =
+            { id = __.id.Read()
+              operation = __.operation.Read()
+              requested = __.requested.Read()
+              precision = __.precision.Read()
+              keep = __.keep.Read()
+              filled = __.filled.Read()
+              free = __.free.Read()
+              date_time = __.date_time.Read() }
+
+        member __.ReadIfNotNull() =
+            if __.id.IsNull() then None else Some(__.Read())
+
 type HydraReader(reader: System.Data.IDataReader) =
     let mutable accFieldCount = 0
     let buildGetOrdinal fieldCount =
@@ -50,12 +82,16 @@ type HydraReader(reader: System.Data.IDataReader) =
         fun col -> dictionary.Item col
         
     let lazytable_name = lazy (main.table_nameReader (reader, buildGetOrdinal 1))
+    let lazyfill_record = lazy (main.fill_recordReader (reader, buildGetOrdinal 8))
     member __.table_name = lazytable_name.Value
+    member __.fill_record = lazyfill_record.Value
     member private __.AccFieldCount with get () = accFieldCount and set (value) = accFieldCount <- value
     member private __.GetReaderByName(entity: string, isOption: bool) =
         match entity, isOption with
         | "table_name", false -> __.table_name.Read >> box
         | "table_name", true -> failwith "Could not read type 'table_name option' because no primary key exists."
+        | "fill_record", false -> __.fill_record.Read >> box
+        | "fill_record", true -> __.fill_record.ReadIfNotNull >> box
         | _ -> failwith $"Could not read type '{entity}' because no generated reader exists."
 
     static member private GetPrimitiveReader(t: System.Type, reader: System.Data.IDataReader, isOpt: bool) =

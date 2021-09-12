@@ -6,6 +6,16 @@ let inline (^) a b = a b
 [<RequiresExplicitTypeArguments>]
 let inline ignore<'T> (a: 'T) = ignore a
 
+let inline undefined<'T> : 'T = raise ^ System.NotImplementedException()
+
+let inline unreached<'T> : 'T =
+    raise ^ System.InvalidOperationException()
+
+[<Measure>]
+type mB
+
+let (|Bytes|) (x: int<mB>) = x |> int64 |> (*) 1024L |> (*) 1024L
+
 module Fabulous =
     open System.Threading.Tasks
     open FSharp.Control.Tasks.NonAffine
