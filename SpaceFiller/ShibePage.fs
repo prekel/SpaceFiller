@@ -16,7 +16,7 @@ type Msg =
 
 type Model =
     { RequestedImagesCount: int
-      Images: byte array list }
+      ImagesViews: ViewElement list }
 
 let downloadUrs count () =
     task {
@@ -43,7 +43,7 @@ let downloadImage (path: string) () =
 
 let init () =
     { RequestedImagesCount = 1
-      Images = [] },
+      ImagesViews = [] },
     Cmd.ofMsg Show
 
 let update msg model =
@@ -57,10 +57,12 @@ let update msg model =
         images
         |> List.map (fun path -> Cmd.ofTaskMsg (downloadImage path))
         |> Cmd.batch
-    | Show -> { model with Images = [] }, Cmd.ofTaskMsg (downloadUrs model.RequestedImagesCount)
+    | Show -> { model with ImagesViews = [] }, Cmd.ofTaskMsg (downloadUrs model.RequestedImagesCount)
     | ImageDownloaded image ->
         { model with
-              Images = image :: model.Images },
+              ImagesViews =
+                  View.Image(source = Image.fromBytes image)
+                  :: model.ImagesViews },
         Cmd.none
 
 let view (model: Model) dispatch =
@@ -88,16 +90,11 @@ let view (model: Model) dispatch =
                           command = (fun () -> dispatch Show),
                           commandCanExecute =
                               (model.RequestedImagesCount
-                               <> (model.Images |> List.length))
+                               <> (model.ImagesViews |> List.length))
                       )
                       View.ScrollView(
                           verticalOptions = LayoutOptions.Fill,
-                          content =
-                              View.StackLayout(
-                                  children =
-                                      [ for i in model.Images |> List.rev do
-                                            View.Image(source = Image.fromBytes i) ]
-                              )
+                          content = View.StackLayout(children = model.ImagesViews)
                       ) ]
             )
     )
