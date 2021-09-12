@@ -1,6 +1,7 @@
 ﻿namespace SpaceFiller
 
 open System
+open System.IO
 open Fabulous
 open Fabulous.XamarinForms
 open Xamarin.Forms.PlatformConfiguration
@@ -18,8 +19,8 @@ module App =
         | ShibePageMsg of ShibePage.Msg
         | MapPageMsg of MapPage.Msg
 
-    let init () =
-        let initFillerModel, initFillerCmd = FillerPage.init ()
+    let init queryContext () =
+        let initFillerModel, initFillerCmd = FillerPage.init queryContext ()
         let initShibeModel, initShibeCmd = ShibePage.init ()
         let initMapModel, initMapCmd = MapPage.init ()
 
@@ -38,15 +39,15 @@ module App =
                       .SetToolbarPlacement(ToolbarPlacement.Bottom)
                   |> ignore<IPlatformElementConfiguration<Android, TabbedPage>>
 
-    let update msg model =
+    let update queryContext msg model =
         match msg with
         | FillerPageMsg msg ->
             let fillerPageModel, fillerPageCmd =
-                FillerPage.update msg model.FillerPageModel
+                FillerPage.update queryContext msg model.FillerPageModel
 
             { model with
                   FillerPageModel = fillerPageModel },
-            fillerPageCmd |> Cmd.map ShibePageMsg
+            fillerPageCmd |> Cmd.map FillerPageMsg
         | ShibePageMsg msg ->
 
             let shibePageModel, shibePageCmd =
@@ -60,7 +61,7 @@ module App =
 
             { model with
                   MapPageModel = mapPageModel },
-            mapPageCmd |> Cmd.map ShibePageMsg
+            mapPageCmd |> Cmd.map MapPageMsg
 
     let view (model: Model) dispatch =
         View.TabbedPage(
@@ -71,22 +72,46 @@ module App =
                   MapPage.view model.MapPageModel (dispatch << MapPageMsg) ]
         )
 
-    let program =
-        XamarinFormsProgram.mkProgram init update view
+    let program queryContext =
+        XamarinFormsProgram.mkProgram (init queryContext) (update queryContext) view
 #if DEBUG
 //|> Program.withConsoleTrace
 #endif
 
+open SqlHydra.Query
+open Microsoft.Data.Sqlite
+open SqlKata.Compilers
+
 type App() as app =
     inherit Application()
 
+    let queryContext () =
+        let dbName = "SpaceFiller.sqlite"
+        let compiler = SqlServerCompiler()
+
+        let dbPath =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), dbName)
+
+        //if (File.Exists(dbPath) |> not) then
+        if true then
+            let assembly = typeof<App>.Assembly
+
+            use stream =
+                assembly.GetManifestResourceStream($"SpaceFiller.%s{dbName}")
+
+            use fs =
+                new FileStream(dbPath, FileMode.OpenOrCreate)
+
+            stream.CopyTo(fs)
+
+        let conn =
+            new SqliteConnection($"Data Source=%s{dbPath}")
+
+        conn.Open()
+
+        new QueryContext(conn, compiler)
+
     do
-        App.program
+        App.program (queryContext ())
         |> XamarinFormsProgram.run app
         |> ignore<ProgramRunner<unit, App.Model, App.Msg>>
-
-    override _.OnSleep() = Console.WriteLine "OnSleep"
-
-    override _.OnResume() = Console.WriteLine "OnResume"
-
-    override _.OnStart() = Console.WriteLine "OnStart"

@@ -12,6 +12,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Prelude.fs" />
     <Compile Include="Glyphs.fs" />
+    <Compile Include="Tables.fs" />
     <Compile Include="FillerPage.fs" />
     <Compile Include="ShibePage.fs" />
     <Compile Include="MapPage.fs" />
@@ -21,7 +22,9 @@
     <PackageReference Include="Fabulous" Version="1.1.0" />
     <PackageReference Include="Fabulous.LiveUpdate" Version="1.1.0" />
     <PackageReference Include="Fabulous.XamarinForms.Maps" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="5.0.9" />
     <PackageReference Include="Ply" Version="0.3.1" />
+    <PackageReference Include="SqlHydra.Query" Version="0.300.1" />
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2083" />
     <PackageReference Include="Xamarin.Essentials" Version="1.7.0" />
     <PackageReference Include="Fabulous.XamarinForms" Version="1.1.0" />
