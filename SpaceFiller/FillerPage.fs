@@ -110,17 +110,54 @@ let update (ctx: QueryContext) msg model =
               Err = ex |> string |> Some },
         Cmd.none
 
+let viewTable model =
+    View.ScrollView(
+        content =
+            View.Grid(
+                coldefs =
+                    [ Dimension.Star
+                      Dimension.Star
+                      Dimension.Star
+                      Dimension.Star
+                      Dimension.Star ],
+                rowdefs =
+                    (model.Records
+                     |> List.map (fun a -> Dimension.Absolute 50.)),
+                children = [ //for i in model.Records do
+                                  ]
+            )
+    )
+
 let view model dispatch =
     View.ContentPage(
         title = "Filler",
         icon = Image.fromFont (FontImageSource(Glyph = FA.History, FontFamily = "FA")),
         content =
-            View.StackLayout(
+            View.Grid(
                 padding = Thickness 20.0,
+                rowdefs = [ Dimension.Star; Dimension.Auto ],
+                coldefs =
+                    [ Dimension.Stars 3.
+                      Dimension.Stars 1. ],
                 children =
-                    [ View.Label(text = (model |> string))
-                      View.Button(text = "Refresh", command = (fun () -> dispatch Refresh))
-                      View.Button(text = "More", command = (fun () -> dispatch Load))
-                      View.Button(text = "Reset", command = (fun () -> dispatch Reset)) ]
+                    [ (viewTable model).Row(0).ColumnSpan(2)
+                      View
+                          .ListView(
+                              items =
+                                  [ View.EntryCell()
+                                    View.EntryCell()
+                                    View.EntryCell() ]
+                          )
+                          .Row(1)
+                          .Column(0)
+                      View
+                          .StackLayout(
+                              children =
+                                  [ View.Button(text = "Refresh", command = (fun () -> dispatch Refresh))
+                                    View.Button(text = "More", command = (fun () -> dispatch Load))
+                                    View.Button(text = "Reset", command = (fun () -> dispatch Reset)) ]
+                          )
+                          .Row(1)
+                          .Column(1) ]
             )
     )
