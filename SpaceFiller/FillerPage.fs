@@ -1,6 +1,7 @@
 ﻿module SpaceFiller.FillerPage
 
 open System
+open System.IO
 open FSharp.Control.Tasks.NonAffine
 open Fabulous
 open Fabulous.XamarinForms
@@ -28,7 +29,9 @@ type FillRecord =
       Filled: int<mB>
       Free: int<mB>
       DateTime: DateTimeOffset option }
-    static member FromDb(dbo: main.fill_record) =
+
+module FillRecord =
+    let fromDb (dbo: main.fill_record) =
         { Id = dbo.id
           Operation =
               match dbo.operation with
@@ -48,7 +51,7 @@ type FillRecord =
           Free = dbo.free * 1<mB>
           DateTime = dbo.date_time |> Option.map DateTimeOffset.Parse }
 
-    member this.ToDb() =
+    let toDb this =
         { main.fill_record.id = this.Id
           main.fill_record.operation =
               match this.Operation with
@@ -72,60 +75,254 @@ type Msg =
     | Refresh
     | Set of Request
     | Reset
-    | Load
+    | Load of int64
     | Loaded of FillRecord list
+    | UpdateRequestedEntry of string
+    | UpdatePrecisionEntry of string
+    | UpdateKeepEntry of string
+    | ShowMessage of string
     | Err of exn
 
 type Model =
     { Records: FillRecord list
-      Err: string option }
+      Err: string option
+      RequestedEntry: string
+      PrecisionEntry: string
+      KeepEntry: string }
 
-let load (ctx: QueryContext) () =
+let requestFromModel model =
+    match model.RequestedEntry |> Int32.TryParse,
+          model.PrecisionEntry |> Int32.TryParse,
+          model.KeepEntry |> Int32.TryParse with
+    | (true, requested), (true, precision), (true, keep) ->
+        { Requested = requested * 1<mB>
+          Precision = precision * 1<mB>
+          Keep = keep * 1<mB> }
+        |> Some
+    | _ -> None
+
+let load (ctx: QueryContext) minId () =
     task {
         let! fr =
             select {
                 for r in fill_record do
+                    where (r.id >= minId)
+                    orderByDescending r.id
                     select r
             }
             |> ctx.ReadAsync HydraReader.Read
 
         return
             fr
-            |> Seq.map FillRecord.FromDb
+            |> Seq.map FillRecord.fromDb
             |> List.ofSeq
             |> Loaded
     }
 
-let init (ctx: QueryContext) () = { Records = []; Err = None }, Cmd.none
+let insertRecord (ctx: QueryContext) rcd () =
+    task {
+        let dbo = rcd |> FillRecord.toDb
+
+        let! (id: int64) =
+            insert {
+                for d in fill_record do
+                    entity dbo
+                    excludeColumn d.id
+            }
+            |> ctx.InsertGetIdAsync
+
+        return Load id
+    }
+
+let getCurrentSetId (ctx: QueryContext) () =
+    task {
+        let! isLastSet =
+            select {
+                for i in fill_record do
+                    orderByDescending i.id
+                    take 1
+                    select (i.requested <> None)
+            }
+            |> ctx.ReadAsync HydraReader.Read
+
+        match isLastSet |> Seq.tryHead with
+        | Some true ->
+            let! ids =
+                select {
+                    for i in fill_record do
+                        where (i.operation = 2)
+                        orderByDescending i.id
+                        select i.id
+                        take 1
+                }
+                |> ctx.ReadAsync HydraReader.Read
+
+            return ids |> Seq.tryHead
+        | _ -> return None
+    }
+
+let getFilled () = task { return -42<mB> }
+
+
+let init (_ctx: QueryContext) () =
+    { Records = []
+      Err = None
+      RequestedEntry = 1024<mB> |> string
+      PrecisionEntry = 16<mB> |> string
+      KeepEntry = 100<mB> |> string },
+    Cmd.ofMsg (Load 0L)
+
+
+let refreshCommand (ctx: QueryContext) model () =
+    task {
+        let info = DriveInfo.GetDrives().[0]
+        let (MegaBytes free) = info.TotalFreeSpace
+
+        let! filled = getFilled ()
+
+        let rcd =
+            { Id = 0L
+              Operation = Operation.Refresh
+              Request =
+                  model.Records
+                  |> List.tryHead
+                  |> Option.bind (fun a -> a.Request)
+              Filled = filled
+              Free = free
+              DateTime = DateTimeOffset.Now |> Some }
+
+        return! insertRecord ctx rcd ()
+    }
+
+let setCommand (ctx: QueryContext) (req: Request) () =
+    task {
+        let info = DriveInfo.GetDrives().[0]
+        let (MegaBytes free) = info.TotalFreeSpace
+
+        let! filled = getFilled ()
+
+        let rcd =
+            { Id = 0L
+              Operation = Operation.Set
+              Request = Some req
+              Filled = filled
+              Free = free
+              DateTime = DateTimeOffset.Now |> Some }
+
+        return! insertRecord ctx rcd ()
+    }
+
+
+let resetCommand (ctx: QueryContext) () =
+    task {
+        let info = DriveInfo.GetDrives().[0]
+        let (MegaBytes free) = info.TotalFreeSpace
+
+        let! filled = getFilled ()
+
+        let rcd =
+            { Id = 0L
+              Operation = Operation.Reset
+              Request = None
+              Filled = filled
+              Free = free
+              DateTime = DateTimeOffset.Now |> Some }
+
+        return! insertRecord ctx rcd ()
+    }
 
 let update (ctx: QueryContext) msg model =
     match msg with
-    | Refresh -> undefined
-    | Set _ -> undefined
-    | Reset -> undefined
-    | Load -> model, Cmd.ofTaskMsgErr (load ctx) Err
-    | Loaded records -> { model with Records = records }, Cmd.none
+    | Refresh -> model, Cmd.ofTaskMsgErr (refreshCommand ctx model) Err
+    | Set req -> model, Cmd.ofTaskMsgErr (setCommand ctx req) Err
+    | Reset -> model, Cmd.ofTaskMsgErr (resetCommand ctx) Err
+    | Load minId -> model, Cmd.ofTaskMsgErr (load ctx minId) Err
+    | Loaded records ->
+        { model with
+              Records = records @ model.Records },
+        Cmd.none
+    | UpdateRequestedEntry entry -> { model with RequestedEntry = entry }, Cmd.none
+    | UpdatePrecisionEntry entry -> { model with PrecisionEntry = entry }, Cmd.none
+    | UpdateKeepEntry entry -> { model with KeepEntry = entry }, Cmd.none
+    | ShowMessage _msg -> model, Cmd.none
     | Err ex ->
         { model with
               Err = ex |> string |> Some },
         Cmd.none
 
 let viewTable model =
-    View.ScrollView(
-        content =
-            View.Grid(
-                coldefs =
-                    [ Dimension.Star
-                      Dimension.Star
-                      Dimension.Star
-                      Dimension.Star
-                      Dimension.Star ],
-                rowdefs =
-                    (model.Records
-                     |> List.map (fun a -> Dimension.Absolute 50.)),
-                children = [ //for i in model.Records do
-                                  ]
-            )
+    View.Grid(
+        rowdefs = [ Dimension.Auto; Dimension.Star ],
+        children =
+            [ View
+                .Grid(
+                    coldefs =
+                        [ Dimension.Stars 1.
+                          Dimension.Stars 2.
+                          Dimension.Stars 2.
+                          Dimension.Stars 1.
+                          Dimension.Stars 1.
+                          Dimension.Stars 3. ],
+                    children =
+                        [ View
+                            .Label(text = "Id", lineBreakMode = LineBreakMode.WordWrap)
+                              .Column(0)
+                          View
+                              .Label(text = "Operation", lineBreakMode = LineBreakMode.WordWrap)
+                              .Column(1)
+                          View
+                              .Label(text = "Requested, Precision, Keep, MB", lineBreakMode = LineBreakMode.WordWrap)
+                              .Column(2)
+                          View
+                              .Label(text = "Filled, MB", lineBreakMode = LineBreakMode.WordWrap)
+                              .Column(3)
+                          View
+                              .Label(text = "Free, MB", lineBreakMode = LineBreakMode.WordWrap)
+                              .Column(4)
+                          View
+                              .Label(text = "DateTime", lineBreakMode = LineBreakMode.WordWrap)
+                              .Column(5) ]
+                )
+                  .Row(0)
+              View
+                  .ScrollView(
+                      content =
+                          View.StackLayout(
+                              children =
+                                  [ for i in model.Records do
+                                        View.Grid(
+                                            coldefs =
+                                                [ Dimension.Stars 1.
+                                                  Dimension.Stars 2.
+                                                  Dimension.Stars 2.
+                                                  Dimension.Stars 1.
+                                                  Dimension.Stars 1.
+                                                  Dimension.Stars 3. ],
+                                            children =
+                                                [ View.Label(text = (string i.Id)).Column(0)
+                                                  View.Label(text = (string i.Operation)).Column(1)
+                                                  View
+                                                      .Label(
+                                                          text =
+                                                              (match i.Request with
+                                                               | Some r -> $"%d{r.Requested}, {r.Precision}, {r.Keep}"
+                                                               | None -> "-")
+                                                      )
+                                                      .Column(2)
+                                                  View.Label(text = (string i.Filled)).Column(3)
+                                                  View.Label(text = (string i.Free)).Column(4)
+                                                  View
+                                                      .Label(
+                                                          text =
+                                                              (match i.DateTime with
+                                                               | Some dt -> string dt
+                                                               | None -> "-")
+                                                      )
+                                                      .Column(5) ]
+                                        ) ]
+                          )
+                  )
+                  .Row(1) ]
     )
 
 let view model dispatch =
@@ -142,19 +339,42 @@ let view model dispatch =
                 children =
                     [ (viewTable model).Row(0).ColumnSpan(2)
                       View
-                          .ListView(
-                              items =
-                                  [ View.EntryCell()
-                                    View.EntryCell()
-                                    View.EntryCell() ]
+                          .StackLayout(
+                              children =
+                                  [ View.Label(text = "Requested, MB")
+                                    View.Entry(
+                                        text = model.RequestedEntry,
+                                        placeholder = "1024",
+                                        textChanged = (fun a -> a.NewTextValue |> UpdateRequestedEntry |> dispatch)
+                                    )
+                                    View.Label(text = "Precision, MB")
+                                    View.Entry(
+                                        text = model.PrecisionEntry,
+                                        placeholder = "16",
+                                        textChanged = (fun a -> a.NewTextValue |> UpdatePrecisionEntry |> dispatch)
+                                    )
+                                    View.Label(text = "Keep, MB")
+                                    View.Entry(
+                                        text = model.KeepEntry,
+                                        placeholder = "100",
+                                        textChanged = (fun a -> a.NewTextValue |> UpdateKeepEntry |> dispatch)
+                                    ) ]
                           )
                           .Row(1)
                           .Column(0)
                       View
                           .StackLayout(
+                              verticalOptions = LayoutOptions.Center,
                               children =
                                   [ View.Button(text = "Refresh", command = (fun () -> dispatch Refresh))
-                                    View.Button(text = "More", command = (fun () -> dispatch Load))
+                                    View.Button(
+                                        text = "Set",
+                                        command =
+                                            (fun () ->
+                                                match requestFromModel model with
+                                                | Some req -> req |> Set |> dispatch
+                                                | None -> "Must be numbers" |> ShowMessage |> dispatch)
+                                    )
                                     View.Button(text = "Reset", command = (fun () -> dispatch Reset)) ]
                           )
                           .Row(1)

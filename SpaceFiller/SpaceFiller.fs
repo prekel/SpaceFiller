@@ -75,7 +75,7 @@ module App =
     let program queryContext =
         XamarinFormsProgram.mkProgram (init queryContext) (update queryContext) view
 #if DEBUG
-//|> Program.withConsoleTrace
+        |> Program.withConsoleTrace
 #endif
 
 open SqlHydra.Query
@@ -85,27 +85,28 @@ open SqlKata.Compilers
 type App() as app =
     inherit Application()
 
+    do
+        if not ^ Directory.Exists(Global.appDataPath) then
+            Directory.CreateDirectory(Global.appDataPath)
+            |> ignore<DirectoryInfo>
+
     let queryContext () =
-        let dbName = "SpaceFiller.sqlite"
-        let compiler = SqlServerCompiler()
+        let compiler = SqliteCompiler()
 
-        let dbPath =
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), dbName)
-
-        //if (File.Exists(dbPath) |> not) then
-        if true then
+        if File.Exists(Global.dbPath) |> not then
+        //if true then
             let assembly = typeof<App>.Assembly
 
             use stream =
-                assembly.GetManifestResourceStream($"SpaceFiller.%s{dbName}")
+                assembly.GetManifestResourceStream($"{Global.appName}.%s{Global.dbName}")
 
             use fs =
-                new FileStream(dbPath, FileMode.OpenOrCreate)
+                new FileStream(Global.dbPath, FileMode.OpenOrCreate)
 
             stream.CopyTo(fs)
 
         let conn =
-            new SqliteConnection($"Data Source=%s{dbPath}")
+            new SqliteConnection(Global.connectionString)
 
         conn.Open()
 

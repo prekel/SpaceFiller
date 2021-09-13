@@ -3,6 +3,8 @@ module SpaceFiller.Prelude
 
 let inline (^) a b = a b
 
+let inline (^/) a b = System.IO.Path.Combine(a, b)
+
 [<RequiresExplicitTypeArguments>]
 let inline ignore<'T> (a: 'T) = ignore a
 
@@ -14,7 +16,13 @@ let inline unreached<'T> : 'T =
 [<Measure>]
 type mB
 
-let (|Bytes|) (x: int<mB>) = x |> int64 |> (*) 1024L |> (*) 1024L
+let (|Bytes|) (megaBytes: int<mB>) =
+    megaBytes |> int64 |> (*) 1024L |> (*) 1024L
+
+let (|MegaBytes|) (bytes: int64) : int<mB> =
+    (decimal bytes) / 1024m / 1024m
+    |> int
+    |> (*) 1<mB>
 
 module Fabulous =
     open System.Threading.Tasks
