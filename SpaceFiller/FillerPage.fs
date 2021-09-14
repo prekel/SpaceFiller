@@ -161,10 +161,48 @@ let getCurrentSetId (ctx: QueryContext) () =
         | _ -> return None
     }
 
-let getFilled () = task { return -42<mB> }
+let fillDataPath = Global.appDataPath ^/ "fill"
 
+let createFilledDir () =
+    if not ^ Directory.Exists fillDataPath then
+        Directory.CreateDirectory fillDataPath
+        |> ignore<DirectoryInfo>
+
+let getFreeSpace () =
+    let info = DriveInfo.GetDrives().[0]
+    let (MegaBytes free) = info.TotalFreeSpace
+    free
+
+let getFilled () =
+    DirectoryInfo(fillDataPath).EnumerateFiles()
+    |> Seq.map (fun file -> file.Length)
+    |> Seq.sum
+    |> (function
+    | MegaBytes a -> a)
+
+let setFilled req () =
+    task {
+        let free = getFreeSpace ()
+
+        let (Bytes toFillAllBytes) = min req.Requested (free - req.Keep)
+        let (Bytes precisionBytes) = req.Precision
+        let chunks = toFillAllBytes / precisionBytes |> int
+        let bytes = Array.zeroCreate (int precisionBytes)
+
+        for i in 1 .. chunks do
+            use fstream =
+                new FileStream(fillDataPath ^/ $"%d{i}.bin", FileMode.OpenOrCreate)
+
+            do! fstream.WriteAsync(bytes, 0, bytes.Length)
+    }
+
+let resetFilled () =
+    DirectoryInfo(fillDataPath).EnumerateFiles()
+    |> Seq.iter (fun file -> file.Delete())
 
 let init (_ctx: QueryContext) () =
+    createFilledDir ()
+
     { Records = []
       Err = None
       RequestedEntry = 1024<mB> |> string
@@ -172,13 +210,10 @@ let init (_ctx: QueryContext) () =
       KeepEntry = 100<mB> |> string },
     Cmd.ofMsg (Load 0L)
 
-
 let refreshCommand (ctx: QueryContext) model () =
     task {
-        let info = DriveInfo.GetDrives().[0]
-        let (MegaBytes free) = info.TotalFreeSpace
-
-        let! filled = getFilled ()
+        let filled = getFilled ()
+        let free = getFreeSpace ()
 
         let rcd =
             { Id = 0L
@@ -196,10 +231,11 @@ let refreshCommand (ctx: QueryContext) model () =
 
 let setCommand (ctx: QueryContext) (req: Request) () =
     task {
-        let info = DriveInfo.GetDrives().[0]
-        let (MegaBytes free) = info.TotalFreeSpace
+        resetFilled ()
+        do! setFilled req ()
 
-        let! filled = getFilled ()
+        let free = getFreeSpace ()
+        let filled = getFilled ()
 
         let rcd =
             { Id = 0L
@@ -212,13 +248,12 @@ let setCommand (ctx: QueryContext) (req: Request) () =
         return! insertRecord ctx rcd ()
     }
 
-
 let resetCommand (ctx: QueryContext) () =
     task {
-        let info = DriveInfo.GetDrives().[0]
-        let (MegaBytes free) = info.TotalFreeSpace
+        resetFilled ()
+        let filled = getFilled ()
 
-        let! filled = getFilled ()
+        let free = getFreeSpace ()
 
         let rcd =
             { Id = 0L
