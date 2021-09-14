@@ -169,9 +169,11 @@ let createFilledDir () =
         |> ignore<DirectoryInfo>
 
 let getFreeSpace () =
-    let info = DriveInfo.GetDrives().[0]
-    let (MegaBytes free) = info.TotalFreeSpace
-    free
+    DependencyService
+        .Get<Services.IFreeStorage>()
+        .GetFreeStorage()
+    |> function
+        | MegaBytes a -> a
 
 let getFilled () =
     DirectoryInfo(fillDataPath).EnumerateFiles()

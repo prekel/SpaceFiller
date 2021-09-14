@@ -13,6 +13,7 @@
     <Compile Include="Prelude.fs" />
     <Compile Include="Glyphs.fs" />
     <Compile Include="Global.fs" />
+    <Compile Include="Services.fs" />
     <Compile Include="FillerPage.fs" />
     <Compile Include="ShibePage.fs" />
     <Compile Include="MapPage.fs" />

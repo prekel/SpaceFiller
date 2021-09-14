@@ -6,6 +6,7 @@
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Services.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <ItemGroup>

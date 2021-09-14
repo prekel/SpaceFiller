@@ -109,6 +109,7 @@
     <AndroidResource Include="Resources\layout\Toolbar.axml" />
     <AndroidResource Include="Resources\values\styles.xml" />
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Services.fs" />
     <Compile Include="MainActivity.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
