@@ -134,33 +134,6 @@ let insertRecord (ctx: QueryContext) rcd () =
         return Load id
     }
 
-let getCurrentSetId (ctx: QueryContext) () =
-    task {
-        let! isLastSet =
-            select {
-                for i in fill_record do
-                    orderByDescending i.id
-                    take 1
-                    select (i.requested <> None)
-            }
-            |> ctx.ReadAsync HydraReader.Read
-
-        match isLastSet |> Seq.tryHead with
-        | Some true ->
-            let! ids =
-                select {
-                    for i in fill_record do
-                        where (i.operation = 2)
-                        orderByDescending i.id
-                        select i.id
-                        take 1
-                }
-                |> ctx.ReadAsync HydraReader.Read
-
-            return ids |> Seq.tryHead
-        | _ -> return None
-    }
-
 let fillDataPath = Global.appDataPath ^/ "fill"
 
 let createFilledDir () =

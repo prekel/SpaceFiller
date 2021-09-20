@@ -93,8 +93,7 @@ type App() as app =
     let queryContext () =
         let compiler = SqliteCompiler()
 
-        if File.Exists(Global.dbPath) |> not then
-        //if true then
+        if not ^ File.Exists(Global.dbPath) then
             let assembly = typeof<App>.Assembly
 
             use stream =

@@ -29,13 +29,6 @@ type OptionalBinaryColumn<'T, 'Reader when 'Reader :> System.Data.IDataReader>(r
             | o -> Some (getValue o :?> byte[])
         
 module main =
-    type table_name = { column_1: Option<int> }
-    type table_nameReader(reader: System.Data.IDataReader, getOrdinal) =
-        member __.column_1 = OptionalColumn(reader, getOrdinal, reader.GetInt32, "column_1")
-        member __.Read() = { column_1 = __.column_1.Read() }
-        member __.ReadIfNotNull(column: Column) =
-            if column.IsNull() then None else Some(__.Read())
-
     type fill_record =
         { id: int64
           operation: int
@@ -81,15 +74,11 @@ type HydraReader(reader: System.Data.IDataReader) =
         accFieldCount <- accFieldCount + fieldCount
         fun col -> dictionary.Item col
         
-    let lazytable_name = lazy (main.table_nameReader (reader, buildGetOrdinal 1))
     let lazyfill_record = lazy (main.fill_recordReader (reader, buildGetOrdinal 8))
-    member __.table_name = lazytable_name.Value
     member __.fill_record = lazyfill_record.Value
     member private __.AccFieldCount with get () = accFieldCount and set (value) = accFieldCount <- value
     member private __.GetReaderByName(entity: string, isOption: bool) =
         match entity, isOption with
-        | "table_name", false -> __.table_name.Read >> box
-        | "table_name", true -> failwith "Could not read type 'table_name option' because no primary key exists."
         | "fill_record", false -> __.fill_record.Read >> box
         | "fill_record", true -> __.fill_record.ReadIfNotNull >> box
         | _ -> failwith $"Could not read type '{entity}' because no generated reader exists."

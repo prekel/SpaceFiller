@@ -28,7 +28,7 @@ let downloadUrs count () =
         let! content = a.Content.ReadAsStringAsync()
 
         let response =
-            JsonConvert.DeserializeObject<string array>(content)
+            JsonConvert.DeserializeObject<_>(content)
 
         return response |> List.ofArray |> ImageListReceived
     }
