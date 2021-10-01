@@ -1,5 +1,7 @@
 # SpaceFiller
 
+Simple mobile/cross-platform application which interacts with filesystem, database and foreign APIs. Built on [Fabulous](https://github.com/fsprojects/Fabulous).
+
 ## Filler tab
 
 | Application screen after `Refresh` command | Used storage after `Refresh` command | Application screen after `Set` command (Request to fill 1GB) | Used storage after `Set` command (1GB more used) | Application screen after `Reset` command | Used storage after `Reset` command |
