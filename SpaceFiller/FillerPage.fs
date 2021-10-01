@@ -38,7 +38,7 @@ module FillRecord =
               | 1 -> Operation.Refresh
               | 2 -> Operation.Set
               | 3 -> Operation.Reset
-              | _ -> unreached
+              | _ -> unreachable<Operation>
           Request =
               match dbo.requested, dbo.precision, dbo.keep with
               | Some requested, Some precision, Some keep ->
@@ -338,7 +338,7 @@ let viewTable model =
 let view model dispatch =
     View.ContentPage(
         title = "Filler",
-        icon = Image.fromFont (FontImageSource(Glyph = FA.History, FontFamily = "FA")),
+        icon = Image.icon (Fa FA.History),
         content =
             View.Grid(
                 padding = Thickness 20.0,

@@ -68,7 +68,7 @@ let update msg model =
 let view (model: Model) dispatch =
     View.ContentPage(
         title = "Shibe",
-        icon = Image.fromFont (FontImageSource(Glyph = FA.Dog, FontFamily = "FA")),
+        icon = Image.icon (Fa FA.Dog),
         content =
             View.StackLayout(
                 padding = Thickness 20.0,

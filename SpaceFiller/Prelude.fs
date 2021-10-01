@@ -10,7 +10,8 @@ let inline ignore<'T> (a: 'T) = ignore a
 
 let inline undefined<'T> : 'T = raise ^ System.NotImplementedException()
 
-let inline unreached<'T> : 'T =
+[<RequiresExplicitTypeArguments>]
+let inline unreachable<'T> : 'T =
     raise ^ System.InvalidOperationException()
 
 [<Measure>]
@@ -65,3 +66,13 @@ module Fabulous =
                       | Some msg -> dispatch msg
                   }
                   |> ignore<Task> ]
+
+    type Icon = Fa of string
+
+    module XamarinForms =
+        module Image =
+            open Fabulous.XamarinForms.InputTypes
+            open Xamarin.Forms
+
+            let icon (Fa glyph) =
+                Image.fromFont (FontImageSource(Glyph = glyph, FontFamily = "FA"))

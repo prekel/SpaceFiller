@@ -24,7 +24,7 @@ let mapRef =
 let view model dispatch =
     View.ContentPage(
         title = "Map",
-        icon = Image.fromFont (FontImageSource(Glyph = FA.Map, FontFamily = "FA")),
+        icon = Image.icon (Fa FA.Map),
         content =
             View.Map(
                 ref = mapRef,
