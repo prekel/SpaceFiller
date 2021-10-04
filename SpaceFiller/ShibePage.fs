@@ -10,8 +10,8 @@ open Xamarin.Forms
 
 type Msg =
     | SetRequested of int
-    | ImageListReceived of string list
     | Show
+    | ImageListReceived of string list
     | ImageDownloaded of byte array
 
 type Model =
@@ -21,7 +21,7 @@ type Model =
 let downloadUrs count () =
     task {
         let url =
-            $"http://shibe.online/api/shibes?count={count}"
+            $"http://shibe.online/api/shibes?count=%d{count}"
 
         use httpClient = new HttpClient()
         let! a = httpClient.GetAsync(url)
@@ -52,12 +52,12 @@ let update msg model =
         { model with
               RequestedImagesCount = cnt },
         Cmd.none
+    | Show -> { model with ImagesViews = [] }, Cmd.ofTaskMsg (downloadUrs model.RequestedImagesCount)
     | ImageListReceived images ->
         model,
         images
         |> List.map (fun path -> Cmd.ofTaskMsg (downloadImage path))
         |> Cmd.batch
-    | Show -> { model with ImagesViews = [] }, Cmd.ofTaskMsg (downloadUrs model.RequestedImagesCount)
     | ImageDownloaded image ->
         { model with
               ImagesViews =
