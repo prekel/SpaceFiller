@@ -2,7 +2,7 @@
 
 open System
 open System.IO
-open FSharp.Control.Tasks.NonAffine
+open FSharp.Control
 open Fabulous
 open Fabulous.XamarinForms
 open Xamarin.Forms
@@ -129,7 +129,7 @@ let insertRecord (ctx: QueryContext) rcd () =
                     entity dbo
                     excludeColumn d.id
             }
-            |> ctx.InsertGetIdAsync
+            |> ctx.InsertAsync
 
         return Load id
     }

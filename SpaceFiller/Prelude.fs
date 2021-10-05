@@ -27,7 +27,7 @@ let (|MegaBytes|) (bytes: int64) : int<mB> =
 
 module Fabulous =
     open System.Threading.Tasks
-    open FSharp.Control.Tasks.NonAffine
+    open FSharp.Control
     open Fabulous
 
     let (>!!=>) (a: ViewRef<_>) b =
@@ -37,7 +37,7 @@ module Fabulous =
     module Cmd =
         let ofTaskMsg (p: unit -> Task<'msg>) : Cmd<'msg> =
             [ fun dispatch ->
-                  unitTask {
+                  task {
                       let! msg = p ()
                       dispatch msg
                   }
@@ -45,7 +45,7 @@ module Fabulous =
 
         let ofTaskMsgErr (p: unit -> Task<'msg>) (toErr: exn -> 'msg) : Cmd<'msg> =
             [ fun dispatch ->
-                  unitTask {
+                  task {
                       let! msg =
                           try
                               p ()
@@ -58,7 +58,7 @@ module Fabulous =
 
         let ofTaskMsgOption (p: unit -> Task<'msg option>) : Cmd<'msg> =
             [ fun dispatch ->
-                  unitTask {
+                  task {
                       let! msg = p ()
 
                       match msg with

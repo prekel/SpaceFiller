@@ -1,6 +1,5 @@
 ﻿namespace SpaceFiller
 
-open System
 open System.IO
 open Fabulous
 open Fabulous.XamarinForms

@@ -4,7 +4,6 @@ open Fabulous
 open Fabulous.XamarinForms
 open Fabulous.XamarinForms.Maps
 open SpaceFiller.Glyphs
-open Xamarin.Forms
 open Xamarin.Forms.Maps
 
 type Msg = ChangeMapType of MapType

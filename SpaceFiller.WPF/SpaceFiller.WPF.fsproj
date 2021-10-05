@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="Fabulous" Version="1.1.0" />
     <PackageReference Include="Xamarin.Forms.Platform.WPF" Version="5.0.0.2083" />
+    <PackageReference Update="FSharp.Core" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../SpaceFiller/SpaceFiller.fsproj" />

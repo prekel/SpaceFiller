@@ -125,6 +125,10 @@
     <Reference Include="FormsViewGroup">
       <HintPath>..\packages\Xamarin.Forms.5.0.0.2083\lib\MonoAndroid10.0\FormsViewGroup.dll</HintPath>
     </Reference>
+    <Reference Include="FSharp.Core, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\packages\FSharp.Core.6.0.0\lib\netstandard2.1\FSharp.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Java.Interop" />
     <Reference Include="Java.Interop" />
     <Reference Include="Microsoft.Data.Sqlite, Version=5.0.9.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
@@ -138,12 +142,8 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Ply, Version=0.3.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Ply.0.3.1\lib\netstandard2.0\Ply.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="SqlHydra.Query, Version=0.300.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\SqlHydra.Query.0.300.1\lib\netstandard2.0\SqlHydra.Query.dll</HintPath>
+    <Reference Include="SqlHydra.Query, Version=0.510.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\SqlHydra.Query.0.510.0\lib\netstandard2.0\SqlHydra.Query.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SQLitePCLRaw.batteries_v2, Version=2.0.4.976, Culture=neutral, PublicKeyToken=8226ea5df37bcae9">
@@ -359,9 +359,6 @@
     </Reference>
     <Reference Include="Xamarin.Forms.Platform.Android">
       <HintPath>..\packages\Xamarin.Forms.5.0.0.2083\lib\MonoAndroid10.0\Xamarin.Forms.Platform.Android.dll</HintPath>
-    </Reference>
-    <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.5.0.0\lib\netstandard2.0\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>

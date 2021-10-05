@@ -1,7 +1,7 @@
 ﻿module SpaceFiller.ShibePage
 
 open System.Net.Http
-open FSharp.Control.Tasks.NonAffine
+open FSharp.Control
 open Fabulous
 open Fabulous.XamarinForms
 open Newtonsoft.Json
