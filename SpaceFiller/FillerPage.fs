@@ -123,11 +123,11 @@ let insertRecord (ctx: QueryContext) rcd () =
     task {
         let dbo = rcd |> FillRecord.toDb
 
-        let! (id: int64) =
+        let! id =
             insert {
                 for d in fill_record do
                     entity dbo
-                    excludeColumn d.id
+                    getId d.id
             }
             |> ctx.InsertAsync
 
