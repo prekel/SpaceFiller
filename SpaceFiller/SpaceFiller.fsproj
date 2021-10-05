@@ -23,7 +23,7 @@
     <PackageReference Include="Fabulous" Version="1.1.0" />
     <PackageReference Include="Fabulous.LiveUpdate" Version="1.1.0" />
     <PackageReference Include="Fabulous.XamarinForms.Maps" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="5.0.10" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="5.0.9" />
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2083" />
     <PackageReference Include="Xamarin.Essentials" Version="1.7.0" />
     <PackageReference Include="Fabulous.XamarinForms" Version="1.1.0" />

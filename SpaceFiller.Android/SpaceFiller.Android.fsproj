@@ -131,8 +131,8 @@
     </Reference>
     <Reference Include="Java.Interop" />
     <Reference Include="Java.Interop" />
-    <Reference Include="Microsoft.Data.Sqlite, Version=5.0.10.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-      <HintPath>..\packages\Microsoft.Data.Sqlite.Core.5.0.10\lib\netstandard2.0\Microsoft.Data.Sqlite.dll</HintPath>
+    <Reference Include="Microsoft.Data.Sqlite, Version=5.0.9.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+      <HintPath>..\packages\Microsoft.Data.Sqlite.Core.5.0.9\lib\netstandard2.0\Microsoft.Data.Sqlite.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Mono.Android" />
