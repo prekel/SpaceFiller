@@ -131,8 +131,8 @@
     </Reference>
     <Reference Include="Java.Interop" />
     <Reference Include="Java.Interop" />
-    <Reference Include="Microsoft.Data.Sqlite, Version=5.0.9.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-      <HintPath>..\packages\Microsoft.Data.Sqlite.Core.5.0.9\lib\netstandard2.0\Microsoft.Data.Sqlite.dll</HintPath>
+    <Reference Include="Microsoft.Data.Sqlite, Version=5.0.10.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+      <HintPath>..\packages\Microsoft.Data.Sqlite.Core.5.0.10\lib\netstandard2.0\Microsoft.Data.Sqlite.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Mono.Android" />
@@ -141,10 +141,6 @@
     <Reference Include="mscorlib" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="SqlHydra.Query, Version=0.510.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\SqlHydra.Query.0.510.0\lib\netstandard2.0\SqlHydra.Query.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="SQLitePCLRaw.batteries_v2, Version=2.0.4.976, Culture=neutral, PublicKeyToken=8226ea5df37bcae9">
       <HintPath>..\packages\SQLitePCLRaw.bundle_e_sqlite3.2.0.4\lib\netstandard2.0\SQLitePCLRaw.batteries_v2.dll</HintPath>
@@ -189,10 +185,6 @@
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml" />
-    <Reference Include="TaskBuilder.fs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\TaskBuilder.fs.2.1.0\lib\netstandard1.6\TaskBuilder.fs.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Xamarin.Android.FSharp.ResourceProvider.Runtime">
       <HintPath>..\packages\Xamarin.Android.FSharp.ResourceProvider.1.0.0.28\lib\monoandroid81\Xamarin.Android.FSharp.ResourceProvider.Runtime.dll</HintPath>
     </Reference>

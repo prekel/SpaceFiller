@@ -9,6 +9,10 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SpaceFiller.WPF", "SpaceFil
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SpaceFiller.Android", "SpaceFiller.Android\SpaceFiller.Android.fsproj", "{1A0E9A72-C8A8-44F3-B94F-243921C31CE1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SqlHydra", "SqlHydra", "{BFF2AF4E-61D4-4089-B065-9CF717782C3A}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SqlHydra.Query", "SqlHydra\src\SqlHydra.Query\SqlHydra.Query.fsproj", "{78EF498E-9B1B-4D85-BC9A-9CDC5D8C7D31}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,5 +62,20 @@ Global
 		{1A0E9A72-C8A8-44F3-B94F-243921C31CE1}.Release|x64.Build.0 = Release|Any CPU
 		{1A0E9A72-C8A8-44F3-B94F-243921C31CE1}.Release|x86.ActiveCfg = Release|Any CPU
 		{1A0E9A72-C8A8-44F3-B94F-243921C31CE1}.Release|x86.Build.0 = Release|Any CPU
+		{78EF498E-9B1B-4D85-BC9A-9CDC5D8C7D31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78EF498E-9B1B-4D85-BC9A-9CDC5D8C7D31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78EF498E-9B1B-4D85-BC9A-9CDC5D8C7D31}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{78EF498E-9B1B-4D85-BC9A-9CDC5D8C7D31}.Debug|x64.Build.0 = Debug|Any CPU
+		{78EF498E-9B1B-4D85-BC9A-9CDC5D8C7D31}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{78EF498E-9B1B-4D85-BC9A-9CDC5D8C7D31}.Debug|x86.Build.0 = Debug|Any CPU
+		{78EF498E-9B1B-4D85-BC9A-9CDC5D8C7D31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78EF498E-9B1B-4D85-BC9A-9CDC5D8C7D31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78EF498E-9B1B-4D85-BC9A-9CDC5D8C7D31}.Release|x64.ActiveCfg = Release|Any CPU
+		{78EF498E-9B1B-4D85-BC9A-9CDC5D8C7D31}.Release|x64.Build.0 = Release|Any CPU
+		{78EF498E-9B1B-4D85-BC9A-9CDC5D8C7D31}.Release|x86.ActiveCfg = Release|Any CPU
+		{78EF498E-9B1B-4D85-BC9A-9CDC5D8C7D31}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{78EF498E-9B1B-4D85-BC9A-9CDC5D8C7D31} = {BFF2AF4E-61D4-4089-B065-9CF717782C3A}
 	EndGlobalSection
 EndGlobal

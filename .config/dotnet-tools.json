@@ -9,7 +9,7 @@
       ]
     },
     "sqlhydra.sqlite": {
-      "version": "0.300.0",
+      "version": "0.510.0",
       "commands": [
         "sqlhydra-sqlite"
       ]
