@@ -1,0 +1,4 @@
+[submodule "SqlHydra"]
+	path = SqlHydra
+	url = git@github.com:prekel/SqlHydra.git
+	branch = main
